@@ -16,6 +16,25 @@ class UserService {
             throw {error};
         }
     }
+    async signIn(email,plainPassword){
+        try {
+            // fetch user by email 
+            const user = await this.userRepository.getByEmail(email);
+            // compare passwords 
+            const passwordMatch =  this.checkPassword(plainPassword,user.Password);
+            if(!passwordMatch){
+                console.log("Password does not match ");
+                throw {error:"Incorrect password "};
+            }
+            // password match create a JWT and send to user
+            const newJWt = this.createToken({Email: user.Email,Password: user.Password});
+            return newJWt;
+            
+        } catch (error) {
+            console.log("Error in signIn : ",error);
+            throw {error};
+        }
+    }
     createToken(user){
         try {
             const result = jwt.sign(user,JWT_KEY,{expiresIn:'1h'});
@@ -34,6 +53,7 @@ class UserService {
             throw {error};
         }
     }
+
     checkPassword(userInputPlainPassword,encryptedPassword){
         try {
             return bcrypt.compareSync(userInputPlainPassword,encryptedPassword);
