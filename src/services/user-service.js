@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const UserRepository = require('../repository/user-repository');
+const bcrypt = require('bcrypt');
 const {JWT_KEY} = require('../config/serverConfig');
 
 class UserService {
@@ -30,6 +31,14 @@ class UserService {
             return response;
         } catch (error) {
             console.log("Error in token creation : ",error);
+            throw {error};
+        }
+    }
+    checkPassword(userInputPlainPassword,encryptedPassword){
+        try {
+            return bcrypt.compareSync(userInputPlainPassword,encryptedPassword);
+        } catch (error) {
+            console.log("Error in Password check : ",error);
             throw {error};
         }
     }
