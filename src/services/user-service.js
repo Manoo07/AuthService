@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const UserRepository = require('../repository/user-repository');
 const bcrypt = require('bcrypt');
 const {JWT_KEY} = require('../config/serverConfig');
+const { response } = require('express');
 
 class UserService {
     constructor(){
@@ -32,6 +33,22 @@ class UserService {
             
         } catch (error) {
             console.log("Error in signIn : ",error);
+            throw {error};
+        }
+    }
+    async isAuthenticated(token){
+        try {
+            const isTokenVerified = this.verifyToken(token);
+            if(!isTokenVerified){
+                throw {error: 'Invalid token '};
+            }
+            const user = this.userRepository.getById(response.id);
+            if(!user){
+                throw {error:'No user with corresponding token exists '};
+            }
+            return user.id
+        } catch (error) {
+            console.log("Error in Auth : ",error);
             throw {error};
         }
     }
